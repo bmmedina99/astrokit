@@ -8,9 +8,9 @@ Plantilla de [Astro](https://astro.build/), [TailwindCSS](https://tailwindcss.co
 
 ## Características
 
-- **Astro** v6 configurado para contenido estático.
+- **Astro** v7 configurado para contenido estático.
 - **TailwindCSS** v4 para estilos rápidos.
-- **TypeScript** v6 para usar con `tsconfig.json` optimizado.
+- **TypeScript** v7 para usar con `tsconfig.json` optimizado.
 - **Biome** v2 para lintear y formatear el código.
 
 ---

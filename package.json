@@ -20,13 +20,13 @@
     "url": "https://github.com/bmmedina99/astrokit/issues"
   },
   "dependencies": {
-    "astro": "7.2.0",
+    "astro": "7.4.2",
     "astro-robots-txt": "1.0.0",
-    "astro-seo-schema": "7.0.0"
+    "astro-seo-schema": "7.0.1"
   },
   "devDependencies": {
-    "@astrojs/check": "0.9.10",
-    "@astrojs/sitemap": "3.7.3",
+    "@astrojs/check": "0.9.12",
+    "@astrojs/sitemap": "3.7.4",
     "@biomejs/biome": "2.5.7",
     "@semantic-release/changelog": "7.0.0",
     "@semantic-release/git": "11.0.1",
