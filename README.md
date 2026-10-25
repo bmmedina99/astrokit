@@ -24,6 +24,7 @@ Plantilla de [Astro](https://astro.build/), [TailwindCSS](https://tailwindcss.co
   git clone https://github.com/tu-usuario/nombre-proyecto.git
   cd nombre-proyecto
 ```
+
 3. Instala la dependencias
 
 ```bash
@@ -35,6 +36,7 @@ Plantilla de [Astro](https://astro.build/), [TailwindCSS](https://tailwindcss.co
 ```bash
   pnpm run dev
 ```
+
 5. Accede a http://localhost:4000 y listo
 
 ---
