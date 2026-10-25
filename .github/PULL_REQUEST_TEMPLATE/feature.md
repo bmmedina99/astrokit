@@ -9,11 +9,13 @@
 <!-- Please describe the proposed changes. -->
 
 ## Impact
+
 - [] New pages/components
 - [] Affect the entire application
 - [] Affect a single package
 
 ## Compatibility
+
 - [] Compatible with previous versions
 - [] Not compatible with previous versions
 - [] Requeire changes in the documentation

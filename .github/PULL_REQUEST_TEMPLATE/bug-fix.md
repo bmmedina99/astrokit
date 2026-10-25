@@ -13,6 +13,7 @@
 <!-- Please describe the solution you implemented to fix the bug. -->
 
 ## Impact
+
 - [] Affect the entire application
 - [] Affect a single package
 - [] Affect a single component
