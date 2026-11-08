@@ -8,12 +8,50 @@
 }
 
 @layer base {
-  main > #hero-content:first-child {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 3rem;
+  }
+
+  body {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
     min-height: 100dvh;
-    padding: clamp(1.5rem, 5vh, 4rem) clamp(1rem, 5vw, 5rem);
+    font-family: "Poppins", sans-serif;
+    background-color: var(--color-purple-800);
+    color: var(--color-neutral-800);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  main {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+
+    & > #hero-content:first-child {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100dvh;
+      padding: 0 calc(var(--spacing) * 8);
+
+      @media (width >= 48rem) {
+        padding-inline: calc(var(--spacing) * 12);
+      }
+    }
+
+    & > section,
+    & > astro-island > section {
+      position: relative;
+      padding: calc(var(--spacing) * 12) calc(var(--spacing) * 4);
+
+      & h1 {
+        font-size: clamp(2.25rem, 8vw, 4.5rem);
+        transition: font-family 0.15s ease-out;
+      }
+    }
   }
 }
