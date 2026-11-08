@@ -1,0 +1,36 @@
+name: Release KiraKana
+
+on:
+  push:
+    branches: [develop] # Cambiar esta rama a tu rama de producción
+
+env:
+  NODE_VERSION: 26
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+
+      - name: Usando Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: Instalando dependencias
+        run: pnpm ci
+
+      - name: Lanzando release
+        run: pnpm run release
