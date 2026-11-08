@@ -2,7 +2,7 @@ import sitemap from '@astrojs/sitemap'
 import tailwindcss from '@tailwindcss/vite'
 import { defineConfig, fontProviders } from 'astro/config'
 import robotsTxt from 'astro-robots-txt'
-import { configSite } from './src/site.config'
+import { configSite } from './src/lib/site.config'
 
 export default defineConfig({
   // -> Modifica la url del sitio en src/site.config.ts
