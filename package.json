@@ -25,7 +25,7 @@
   "dependencies": {
     "@astrojs/sitemap": "3.7.4",
     "@tailwindcss/vite": "4.3.3",
-    "astro": "7.4.7",
+    "astro": "7.4.2",
     "astro-robots-txt": "1.0.0",
     "astro-seo-schema": "7.0.1",
     "sharp": "0.35.5",
@@ -33,13 +33,13 @@
   },
   "devDependencies": {
     "@astrojs/check": "0.9.12",
-    "@biomejs/biome": "2.6.3",
+    "@biomejs/biome": "2.6.6",
     "@semantic-release/changelog": "7.0.0",
     "@semantic-release/git": "11.0.1",
-    "@types/node": "26.6.5",
-    "@vitest/coverage-v8": "5.0.5",
+    "@types/node": "26.6.6",
+    "@vitest/coverage-v8": "5.1.0",
     "typescript": "6.0.3",
-    "vitest": "5.0.5"
+    "vitest": "5.1.0"
   },
   "packageManager": "pnpm@12.18.0"
 }
