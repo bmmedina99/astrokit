@@ -4,12 +4,18 @@ import Features from '@/components/sections/Features.astro'
 import Hero from '@/components/sections/Hero.astro'
 import Integrations from '@/components/sections/Integrations.astro'
 import Started from '@/components/sections/Started.astro'
-import { configSite } from '@/site.config'
+import { homepageSchema } from '@/lib/schema'
+import { configSite } from '@/lib/site.config'
 import Layout from '../layouts/Layout.astro'
+
+const title = 'Modifica el titulo y descripción del sitio en src/site.config.ts'
+const description = configSite.description
+const canonical = configSite.url
+const schemas = homepageSchema({ url: canonical, title, description })
 ---
 
 <!-- Modifica el titulo y descripción del sitio en src/site.config.ts -->
-<Layout title="Template" description={configSite.description}>
+<Layout {title} {description} {canonical} {schemas} breadcrumbs={false}>
   <Main>
     <Hero />
     <Features />
