@@ -1,4 +1,4 @@
-name: Pull Request Quality
+name: Pull Request Checks
 
 run-name: "Validate PR #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }}"
 
@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 env:
-  NODE_VERSION: 24
+  NODE_VERSION: 26
 
 defaults:
   run:
