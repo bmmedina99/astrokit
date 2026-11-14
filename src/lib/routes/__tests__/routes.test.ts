@@ -1,106 +1,45 @@
 import { describe, expect, it } from 'vitest'
-import { createPracticeGroupUrl, routeLabels, routes } from '..'
+import { routeLabels, routes } from '..'
+import { buildUrl } from '../core'
 
-describe('public routes validation', () => {
-  it('returns "/" for home', () => {
+describe('routes', () => {
+  it('returns the home route', () => {
     expect(routes.home()).toBe('/')
   })
 
-  it('returns "/progreso/" for progress', () => {
-    expect(routes.progress()).toBe('/progreso/')
+  it('returns example routes with trailing slashes', () => {
+    expect(routes.example.index()).toBe('/example/')
+    expect(routes.example.page('contact')).toBe('/example/contact/')
+    expect(routes.example.page('search')).toBe('/example/search/')
   })
 
-  it('returns public routes with trailing slash except home', () => {
-    const publicRoutes = [
-      routes.learn.index(),
-      routes.practice.index(),
-      routes.progress(),
-    ]
-
-    expect(publicRoutes.every((route) => route.endsWith('/'))).toBe(true)
+  it('supports additional example page slugs', () => {
+    expect(routes.example.page('about')).toBe('/example/about/')
   })
 })
 
-describe('learn route validation', () => {
-  it('returns "/aprender/" for index', () => {
-    expect(routes.learn.index()).toBe('/aprender/')
+describe('buildUrl', () => {
+  it('builds a path without a query string when no params are provided', () => {
+    expect(buildUrl('/example/', {})).toBe('/example/')
   })
 
-  it('returns the correct path for each syllabary', () => {
-    expect(routes.learn.syllabary('hiragana')).toBe('/aprender/hiragana/')
-    expect(routes.learn.syllabary('katakana')).toBe('/aprender/katakana/')
-  })
-
-  it('accepts arbitrary syllabary slugs for extensibility', () => {
-    expect(routes.learn.syllabary('kanji')).toBe('/aprender/kanji/')
-  })
-})
-
-describe('practice route validation', () => {
-  it('returns "/practicar/" for index', () => {
-    expect(routes.practice.index()).toBe('/practicar/')
-  })
-
-  it('returns the correct path for each mode', () => {
-    expect(routes.practice.mode('lectura')).toBe('/practicar/lectura/')
-  })
-
-  it('returns the correct path for each mode and syllabary combination', () => {
-    expect(routes.practice.modeSyllabary('escucha', 'hiragana')).toBe(
-      '/practicar/escucha/hiragana/',
-    )
-  })
-})
-
-describe('createPracticeGroupUrl practice path generation', () => {
-  it("doesn't add a query string without optional params", () => {
+  it('encodes query params and omits nullish values', () => {
     expect(
-      createPracticeGroupUrl({ mode: 'reconocimiento', syllabary: 'hiragana' }),
-    ).toBe('/practicar/reconocimiento/hiragana/')
-  })
-
-  it('adds ?group= when "group" is provided', () => {
-    expect(
-      createPracticeGroupUrl({
-        mode: 'escucha',
-        syllabary: 'hiragana',
-        group: 'ka',
+      buildUrl('/example/search/', {
+        query: 'hiragana katakana',
+        empty: '',
+        omitted: undefined,
+        alsoOmitted: null,
       }),
-    ).toBe('/practicar/escucha/hiragana/?group=ka')
-  })
-
-  it('adds ?level= when "level" is provided', () => {
-    expect(
-      createPracticeGroupUrl({
-        mode: 'reconocimiento',
-        syllabary: 'hiragana',
-        level: 'completo',
-      }),
-    ).toBe('/practicar/reconocimiento/hiragana/?level=completo')
-  })
-
-  it('with both parameters orders them correctly', () => {
-    expect(
-      createPracticeGroupUrl({
-        mode: 'escritura',
-        syllabary: 'katakana',
-        group: 'a',
-        level: 'completo',
-      }),
-    ).toBe('/practicar/escritura/katakana/?group=a&level=completo')
+    ).toBe('/example/search/?query=hiragana+katakana&empty=')
   })
 })
 
-describe('route labels validation', () => {
-  it('returns the correct label for each route', () => {
+describe('routeLabels', () => {
+  it('labels the home and example routes', () => {
     expect(routeLabels['/']).toBe('Inicio')
-    expect(routeLabels['/aprender/']).toBe('Aprender')
-    expect(routeLabels['/practicar/']).toBe('Practicar')
-    expect(routeLabels['/progreso/']).toBe('Progreso')
-  })
-
-  it('covers automatically generated mode and syllabary combinations', () => {
-    expect(routeLabels['/practicar/reconocimiento/hiragana/']).toBe('Hiragana')
-    expect(routeLabels['/practicar/escritura/katakana/']).toBe('Katakana')
+    expect(routeLabels['/example/']).toBe('Example')
+    expect(routeLabels['/example/contact/']).toBe('Contacto')
+    expect(routeLabels['/example/search/']).toBe('Busqueda')
   })
 })
