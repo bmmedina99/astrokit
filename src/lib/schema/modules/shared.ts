@@ -7,6 +7,12 @@ export const PAGE_LABELS: Record<PageSlug, string> = {
   search: 'Busqueda',
 }
 
+export function normalizePageUrl(value: string): string {
+  const url = new URL(value)
+  url.pathname = `${url.pathname.replace(/\/+$/, '')}/`
+  return url.href
+}
+
 export function webPageSchema(params: {
   url: string
   title: string

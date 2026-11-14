@@ -1,5 +1,6 @@
 import { configSite } from '@/lib/site.config'
 import type { BreadcrumbItem, SchemaBase } from '../core'
+import { normalizePageUrl } from './shared'
 
 const EXCLUDED_PATHS = new Set(['', '/'])
 
@@ -28,12 +29,13 @@ export function buildBreadcrumbItems(canonicalUrl: string): BreadcrumbItem[] {
     .replace(/^\/|\/$/g, '')
     .split('/')
     .filter(Boolean)
-  const siteRootUrl = `${configSite.url.replace(/\/+$/, '')}/`
 
-  const items: BreadcrumbItem[] = [{ name: 'Inicio', url: siteRootUrl }]
+  const items: BreadcrumbItem[] = [
+    { name: 'Inicio', url: normalizePageUrl(configSite.url) },
+  ]
 
   segments.forEach((segment, index) => {
-    const url = `${siteRootUrl}${segments.slice(0, index + 1).join('/')}/ `
+    const url = `${configSite.url}/${segments.slice(0, index + 1).join('/')}/`
     items.push({ name: formatSegment(segment), url })
   })
 
@@ -47,7 +49,7 @@ export function buildBreadcrumbSchema(items: BreadcrumbItem[]): SchemaBase {
       '@type': 'ListItem',
       position: index + 1,
       name: item.name,
-      item: item.url,
+      item: normalizePageUrl(item.url),
     })),
   }
 }
