@@ -76,7 +76,6 @@ describe('page schemas', () => {
         '@id': `${configSite.url}/#webpage`,
         url: configSite.url,
         name: 'Inicio',
-        specialCommitments: 'FreeToUse',
         mainEntity: { '@id': `${configSite.url}/#app` },
       },
     ])
