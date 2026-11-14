@@ -1,136 +1,96 @@
 import { describe, expect, it } from 'vitest'
-import { configSite } from '@/lib/site.config'
+import { configSite } from '../../site.config'
 import {
-  type BreadcrumbItem,
   buildBreadcrumbItems,
+  buildBreadcrumbSchema,
+  getBreadcrumbSchema,
   shouldHaveBreadcrumbs,
 } from '..'
 
-const BREADCRUMB_LEARN_HIRAGANA: BreadcrumbItem[] = [
-  { name: 'Inicio', url: `${configSite.url}/` },
-  { name: 'Aprender', url: `${configSite.url}/aprender/` },
-  { name: 'Hiragana', url: `${configSite.url}/aprender/hiragana/` },
-]
-
-const BREADCRUMB_PRACTICE_RECOGNITION: BreadcrumbItem[] = [
-  { name: 'Inicio', url: `${configSite.url}/` },
-  { name: 'Practicar', url: `${configSite.url}/practicar/` },
-  {
-    name: 'Reconocimiento',
-    url: `${configSite.url}/practicar/reconocimiento/`,
-  },
-  {
-    name: 'Hiragana',
-    url: `${configSite.url}/practicar/reconocimiento/hiragana/`,
-  },
-]
-
-const URLS = {
-  home: `${configSite.url}`,
-  learnHiragana: `${configSite.url}/aprender/hiragana`,
-  learnKatakana: `${configSite.url}/aprender/katakana`,
-  practiceRecognition: `${configSite.url}/practicar/reconocimiento/hiragana`,
-  practiceListening: `${configSite.url}/practicar/escucha/katakana`,
-  practiceWriting: `${configSite.url}/practicar/escritura/hiragana`,
-} as const
+const EXAMPLE_CONTACT_URL = `${configSite.url}/example/contact`
 
 describe('shouldHaveBreadcrumbs', () => {
-  it.each([
-    '/aprender',
-    '/aprender/hiragana',
-    '/practicar/reconocimiento/hiragana',
-  ])('returns true for breadcrumb-enabled route "%s"', (path) => {
-    expect(shouldHaveBreadcrumbs(path)).toBe(true)
-  })
-
-  it.each(['', '/'])('returns false for root-like route "%s"', (path) => {
+  it.each(['/', ''])('returns false for the root path "%s"', (path) => {
     expect(shouldHaveBreadcrumbs(path)).toBe(false)
   })
+
+  it.each(['/example/', '/example/contact/'])(
+    'returns true for a non-root path "%s"',
+    (path) => {
+      expect(shouldHaveBreadcrumbs(path)).toBe(true)
+    },
+  )
 })
 
 describe('buildBreadcrumbItems', () => {
-  describe('learn hiragana route', () => {
-    const items = buildBreadcrumbItems(URLS.learnHiragana)
-
-    it('builds exactly three breadcrumb items', () => {
-      expect(items).toHaveLength(3)
-    })
-
-    it('uses Home as the first breadcrumb item pointing to the site root', () => {
-      expect(items[0]?.name).toBe('Inicio')
-      expect(items[0]?.url).toBe(`${configSite.url}/`)
-    })
-
-    it('uses Learn as the second breadcrumb item with the expected URL', () => {
-      expect(items[1]?.name).toBe('Aprender')
-      expect(items[1]?.url).toBe(`${configSite.url}/aprender/`)
-    })
-
-    it('uses Hiragana as the third breadcrumb item with its canonical URL', () => {
-      expect(items[2]?.name).toBe('Hiragana')
-      expect(items[2]?.url).toBe(`${URLS.learnHiragana}/`)
-    })
-
-    it('matches the learn hiragana breadcrumb fixture exactly', () => {
-      expect(items).toEqual(BREADCRUMB_LEARN_HIRAGANA)
-    })
-  })
-
-  describe('practice recognition hiragana route', () => {
-    const items = buildBreadcrumbItems(URLS.practiceRecognition)
-
-    it('builds four breadcrumb items for a three-segment route', () => {
-      expect(items).toHaveLength(4)
-    })
-
-    it('returns breadcrumb labels in the expected hierarchy order', () => {
-      expect(items.map((item) => item.name)).toEqual([
-        'Inicio',
-        'Practicar',
-        'Reconocimiento',
-        'Hiragana',
-      ])
-    })
-
-    it('matches the practice recognition breadcrumb fixture exactly', () => {
-      expect(items).toEqual(BREADCRUMB_PRACTICE_RECOGNITION)
-    })
-  })
-
-  describe('unknown route segments', () => {
-    it('falls back to capitalized labels for unregistered segments', () => {
-      const items = buildBreadcrumbItems(
-        `${configSite.url}/recursos/guia-basica`,
-      )
-
-      expect(items[1]?.name).toBe('Recursos')
-      expect(items[2]?.name).toBe('Guia-basica')
-    })
-  })
-
-  it('always adds trailing slashes, including when the canonical URL has none', () => {
-    const withoutTrailingSlash = buildBreadcrumbItems(
-      `${configSite.url}/aprender/hiragana`,
-    )
-    const withTrailingSlash = buildBreadcrumbItems(
-      `${configSite.url}/aprender/hiragana/`,
-    )
-
-    expect(withoutTrailingSlash).toEqual(withTrailingSlash)
-    expect(withoutTrailingSlash.map((item) => item.url)).toEqual([
-      `${configSite.url}/`,
-      `${configSite.url}/aprender/`,
-      `${configSite.url}/aprender/hiragana/`,
+  it('builds a breadcrumb for each path segment using canonical URLs', () => {
+    expect(buildBreadcrumbItems(EXAMPLE_CONTACT_URL)).toEqual([
+      { name: 'Inicio', url: `${configSite.url}/` },
+      { name: 'Example', url: `${configSite.url}/example/` },
+      { name: 'Contacto', url: `${configSite.url}/example/contact/` },
     ])
   })
 
-  describe('absolute URLs', () => {
-    it('uses the configured site URL when building breadcrumb URLs', () => {
-      const items = buildBreadcrumbItems(URLS.learnKatakana)
+  it('uses the same canonical URLs when the input has a trailing slash', () => {
+    expect(buildBreadcrumbItems(`${EXAMPLE_CONTACT_URL}/`)).toEqual(
+      buildBreadcrumbItems(EXAMPLE_CONTACT_URL),
+    )
+  })
 
-      items.forEach((item) => {
-        expect(item.url.startsWith(configSite.url)).toBe(true)
-      })
+  it('falls back to capitalized labels for unregistered segments', () => {
+    const items = buildBreadcrumbItems(
+      `${configSite.url}/resources/basic-guide`,
+    )
+
+    expect(items.slice(1).map((item) => item.name)).toEqual([
+      'Resources',
+      'Basic-guide',
+    ])
+  })
+})
+
+describe('breadcrumb schema', () => {
+  it('builds ordered ListItem entries', () => {
+    expect(
+      buildBreadcrumbSchema([
+        { name: 'Inicio', url: `${configSite.url}/` },
+        { name: 'Example', url: `${configSite.url}/example/` },
+      ]),
+    ).toMatchObject({
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Inicio',
+          item: `${configSite.url}/`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Example',
+          item: `${configSite.url}/example/`,
+        },
+      ],
+    })
+  })
+
+  it('omits breadcrumbs for the site root', () => {
+    expect(getBreadcrumbSchema(configSite.url)).toBeNull()
+  })
+
+  it('creates breadcrumbs for nested page URLs', () => {
+    expect(getBreadcrumbSchema(EXAMPLE_CONTACT_URL)).toMatchObject({
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { position: 1, name: 'Inicio', item: `${configSite.url}/` },
+        { position: 2, name: 'Example', item: `${configSite.url}/example/` },
+        {
+          position: 3,
+          name: 'Contacto',
+          item: `${configSite.url}/example/contact/`,
+        },
+      ],
     })
   })
 })

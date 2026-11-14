@@ -1,114 +1,201 @@
 import { describe, expect, it } from 'vitest'
-import { configSite } from '@/lib/site.config'
+import { configSite } from '../../site.config'
 import {
   baseSchemas,
+  buildJsonLd,
+  composeSchemas,
+  exampleIndexSchema,
+  examplePageSchema,
+  homepageSchema,
   organizationSchema,
   softwareAppSchema,
   websiteSchema,
 } from '..'
 
-describe('organizationSchema', () => {
-  it('has "Organization" as @type', () => {
-    expect(organizationSchema['@type']).toBe('Organization')
-  })
+describe('base schemas', () => {
+  it('defines the site organization, website, and application', () => {
+    expect(organizationSchema).toMatchObject({
+      '@type': 'Organization',
+      '@id': `${configSite.url}/#organization`,
+      name: configSite.name,
+      url: configSite.url,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${configSite.url}/assets/images/astro-logo.webp`,
+      },
+    })
 
-  it('has a canonical @id with the #organization suffix', () => {
-    expect(organizationSchema['@id']).toBe(`${configSite.url}/#organization`)
-  })
+    expect(websiteSchema).toMatchObject({
+      '@type': 'WebSite',
+      '@id': `${configSite.url}/#website`,
+      name: configSite.name,
+      description: configSite.description,
+      inLanguage: configSite.lang,
+      publisher: { '@id': `${configSite.url}/#organization` },
+    })
 
-  it('uses the configured site name', () => {
-    expect(organizationSchema.name).toBe(configSite.name)
-  })
-
-  it('uses the configured site root URL', () => {
-    expect(organizationSchema.url).toBe(configSite.url)
-  })
-
-  it('uses a logo URL that belongs to the site domain', () => {
-    const logo = organizationSchema.logo as Record<string, unknown>
-
-    expect((logo.url as string).startsWith(configSite.url)).toBe(true)
-  })
-})
-
-describe('websiteSchema', () => {
-  it('has "WebSite" as @type', () => {
-    expect(websiteSchema['@type']).toBe('WebSite')
-  })
-
-  it('has a canonical @id with the #website suffix', () => {
-    expect(websiteSchema['@id']).toBe(`${configSite.url}/#website`)
-  })
-
-  it('has a non-empty description', () => {
-    expect(typeof websiteSchema.description).toBe('string')
-    expect((websiteSchema.description as string).length).toBeGreaterThan(0)
-  })
-
-  it('uses the configured site language', () => {
-    expect(websiteSchema.inLanguage).toBe(configSite.lang)
-  })
-
-  it('references the organization as publisher', () => {
-    const publisher = websiteSchema.publisher as Record<string, unknown>
-
-    expect(publisher['@id']).toBe(`${configSite.url}/#organization`)
-  })
-})
-
-describe('softwareAppSchema', () => {
-  it('has "SoftwareApplication" as @type', () => {
-    expect(softwareAppSchema['@type']).toBe('SoftwareApplication')
-  })
-
-  it('has a canonical @id with the #app suffix', () => {
-    expect(softwareAppSchema['@id']).toBe(`${configSite.url}/#app`)
-  })
-
-  it('uses "Web" as operating system', () => {
-    expect(softwareAppSchema.operatingSystem).toBe('Web')
-  })
-
-  it('is marked as freely accessible', () => {
-    expect(softwareAppSchema.isAccessibleForFree).toBe(true)
-  })
-
-  it('teaches both Hiragana and Katakana', () => {
-    const teaches = softwareAppSchema.teaches as string[]
-
-    expect(teaches).toContain('Hiragana')
-    expect(teaches).toContain('Katakana')
-  })
-})
-
-describe('baseSchemas', () => {
-  it('exports exactly three base schemas', () => {
-    expect(baseSchemas).toHaveLength(3)
-  })
-
-  it('contains Organization, WebSite, and SoftwareApplication in order', () => {
-    expect(baseSchemas[0]?.['@type']).toBe('Organization')
-    expect(baseSchemas[1]?.['@type']).toBe('WebSite')
-    expect(baseSchemas[2]?.['@type']).toBe('SoftwareApplication')
-  })
-
-  it('defines an @type for every base schema', () => {
-    baseSchemas.forEach((schema) => {
-      expect(schema['@type']).toBeDefined()
+    expect(softwareAppSchema).toMatchObject({
+      '@type': 'SoftwareApplication',
+      '@id': `${configSite.url}/#app`,
+      operatingSystem: 'Web',
+      isAccessibleForFree: true,
     })
   })
 
-  it('defines a site-based @id for every base schema', () => {
-    baseSchemas.forEach((schema) => {
-      expect(typeof schema['@id']).toBe('string')
-      expect((schema['@id'] as string).startsWith(configSite.url)).toBe(true)
-    })
-  })
+  it('exports the three base schemas with unique canonical IDs', () => {
+    expect(baseSchemas.map((schema) => schema['@type'])).toEqual([
+      'Organization',
+      'WebSite',
+      'SoftwareApplication',
+    ])
 
-  it('uses unique @id values across all base schemas', () => {
     const ids = baseSchemas.map((schema) => schema['@id'])
-    const uniqueIds = new Set(ids)
+    expect(new Set(ids).size).toBe(baseSchemas.length)
+    expect(
+      ids.every(
+        (id) => typeof id === 'string' && id.startsWith(configSite.url),
+      ),
+    ).toBe(true)
+  })
+})
 
-    expect(uniqueIds.size).toBe(baseSchemas.length)
+describe('page schemas', () => {
+  const exampleIndexUrl = `${configSite.url}/example`
+  const exampleContactUrl = `${exampleIndexUrl}/contact`
+
+  it('creates the homepage web page and app relationship', () => {
+    expect(
+      homepageSchema({
+        url: configSite.url,
+        title: 'Inicio',
+        description: configSite.description,
+      }),
+    ).toMatchObject([
+      {
+        '@type': 'WebPage',
+        '@id': `${configSite.url}/#webpage`,
+        url: configSite.url,
+        name: 'Inicio',
+        specialCommitments: 'FreeToUse',
+        mainEntity: { '@id': `${configSite.url}/#app` },
+      },
+    ])
+  })
+
+  it('creates a collection page with its example courses', () => {
+    expect(
+      exampleIndexSchema({
+        url: exampleIndexUrl,
+        title: 'Ejemplos',
+        description: 'Páginas de ejemplo',
+      }),
+    ).toMatchObject([
+      {
+        '@type': 'CollectionPage',
+        '@id': `${exampleIndexUrl}/#webpage`,
+        name: 'Ejemplos',
+      },
+      {
+        '@type': 'Course',
+        '@id': `${exampleIndexUrl}/contact/#course`,
+        url: `${exampleIndexUrl}/contact/`,
+      },
+      {
+        '@type': 'Course',
+        '@id': `${exampleIndexUrl}/search/#course`,
+        url: `${exampleIndexUrl}/search/`,
+      },
+    ])
+  })
+
+  it('creates a page, course, and learning resource for an example page', () => {
+    expect(
+      examplePageSchema({
+        url: exampleContactUrl,
+        title: 'Contacto',
+        description: 'Ejemplo de página de contacto',
+      }),
+    ).toMatchObject([
+      {
+        '@type': 'WebPage',
+        '@id': `${exampleContactUrl}/#webpage`,
+        name: 'Contacto',
+      },
+      {
+        '@type': 'Course',
+        '@id': `${exampleContactUrl}/#course`,
+        isPartOf: { '@id': `${configSite.url}/example/#webpage` },
+      },
+      {
+        '@type': 'LearningResource',
+        '@id': `${exampleContactUrl}/#learning-resource`,
+        isPartOf: { '@id': `${exampleContactUrl}/#course` },
+      },
+    ])
+  })
+})
+
+describe('schema composition', () => {
+  it('combines base, page, and automatically generated breadcrumb schemas', () => {
+    const composed = composeSchemas({
+      url: `${configSite.url}/example/contact`,
+      title: 'Contacto',
+      description: 'Ejemplo',
+      schemas: examplePageSchema({
+        url: `${configSite.url}/example/contact`,
+        title: 'Contacto',
+        description: 'Ejemplo',
+      }),
+    })
+
+    expect(composed.map((schema) => schema['@type'])).toEqual([
+      'Organization',
+      'WebSite',
+      'SoftwareApplication',
+      'WebPage',
+      'Course',
+      'LearningResource',
+      'BreadcrumbList',
+    ])
+  })
+
+  it('honors explicit breadcrumb items and supports disabling breadcrumbs', () => {
+    const explicitBreadcrumbs = [
+      { name: 'Inicio', url: `${configSite.url}/` },
+      { name: 'Custom', url: `${configSite.url}/custom/` },
+    ]
+
+    expect(
+      composeSchemas({
+        url: `${configSite.url}/custom`,
+        title: 'Custom',
+        schemas: [],
+        breadcrumbs: explicitBreadcrumbs,
+      }).at(-1),
+    ).toMatchObject({
+      '@type': 'BreadcrumbList',
+      itemListElement: [{ position: 1 }, { position: 2, name: 'Custom' }],
+    })
+
+    expect(
+      composeSchemas({
+        url: `${configSite.url}/custom`,
+        title: 'Custom',
+        breadcrumbs: false,
+      }),
+    ).toHaveLength(baseSchemas.length)
+  })
+
+  it('wraps composed schemas in JSON-LD format', () => {
+    const jsonLd = buildJsonLd({
+      url: configSite.url,
+      title: 'Inicio',
+      breadcrumbs: false,
+    })
+
+    expect(jsonLd).toMatchObject({
+      '@context': 'https://schema.org',
+      '@graph': baseSchemas,
+    })
   })
 })
