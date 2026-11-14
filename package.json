@@ -4,9 +4,11 @@
   "type": "module",
   "version": "0.0.0",
   "private": true,
+  "license": "MIT",
   "scripts": {
     "dev": "astro dev --port=4000",
-    "build": "astro check && astro build",
+    "check": "astro sync && tsc --noEmit",
+    "build": "pnpm run check && astro build",
     "release": "pnpm dlx semantic-release",
     "preview": "astro preview --port=5000",
     "fmt": "biome format --write .",
@@ -32,7 +34,6 @@
     "tailwindcss": "4.3.5"
   },
   "devDependencies": {
-    "@astrojs/check": "0.9.12",
     "@biomejs/biome": "2.6.7",
     "@semantic-release/changelog": "7.0.0",
     "@semantic-release/git": "11.0.1",
