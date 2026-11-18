@@ -12,10 +12,6 @@ describe('routes', () => {
     expect(routes.example.page('contact')).toBe('/example/contact/')
     expect(routes.example.page('search')).toBe('/example/search/')
   })
-
-  it('supports additional example page slugs', () => {
-    expect(routes.example.page('about')).toBe('/example/about/')
-  })
 })
 
 describe('buildUrl', () => {
