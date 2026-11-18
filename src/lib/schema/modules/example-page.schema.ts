@@ -1,6 +1,6 @@
-import { configSite } from "@/lib/site.config"
-import type { SchemaBase } from "../core"
-import { webPageSchema } from "./shared"
+import { configSite } from '@/lib/site.config'
+import type { SchemaBase } from '../core'
+import { webPageSchema } from './shared'
 
 export function examplePageSchema(params: {
   url: string
